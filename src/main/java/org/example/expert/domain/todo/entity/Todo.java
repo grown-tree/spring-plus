@@ -30,7 +30,7 @@ public class Todo extends Timestamped {
     @OneToMany(mappedBy = "todo", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "todo", cascade = CascadeType.PERSIST)//todo저장시 managers도 자동저장되게
+    @OneToMany(mappedBy = "todo", cascade = CascadeType.PERSIST)//todo저장시 managers에도 자동저장
     private List<Manager> managers = new ArrayList<>();
 
     public Todo(String title, String contents, String weather, User user) {
@@ -38,6 +38,6 @@ public class Todo extends Timestamped {
         this.contents = contents;
         this.weather = weather;
         this.user = user;
-        this.managers.add(new Manager(user, this));
+        this.managers.add(new Manager(user, this));//생성한 유저를 담당자로 등록
     }
 }

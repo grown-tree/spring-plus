@@ -40,10 +40,6 @@ public class TodoService {
                 weather,
                 user
         );
-        //생성한 유저를 담당자로 등록
-        Manager manager = new Manager(user, newTodo);
-
-        newTodo.getManagers().add(manager);//CascadeType.PERSIST설정하여 함께 저장됨
 
         Todo savedTodo = todoRepository.save(newTodo);
 
