@@ -16,7 +16,7 @@ public interface TodoRepository extends JpaRepository<Todo, Long> {
     @Query("SELECT t FROM Todo t LEFT JOIN FETCH t.user u ORDER BY t.modifiedAt DESC")
     Page<Todo> findAllByOrderByModifiedAtDesc(Pageable pageable);
     //개선
-    @Query("SELECT t FROM Todo t JOIN FETCH t.user WHERE " +
+    @Query("SELECT t FROM Todo t LEFT JOIN FETCH t.user WHERE " +
             "(:weather IS NULL OR t.weather = :weather) AND " +//없으면null 있으면 해당조건으로 검색
             "(:startAt IS NULL OR t.modifiedAt >= :startAt) AND " +
             "(:endAt IS NULL OR t.modifiedAt <= :endAt) "+
