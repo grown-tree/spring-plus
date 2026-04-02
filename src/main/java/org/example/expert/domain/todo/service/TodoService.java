@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.expert.client.WeatherClient;
 import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.common.exception.InvalidRequestException;
+import org.example.expert.domain.manager.entity.Manager;
 import org.example.expert.domain.todo.dto.request.TodoSaveRequest;
 import org.example.expert.domain.todo.dto.response.TodoResponse;
 import org.example.expert.domain.todo.dto.response.TodoSaveResponse;
@@ -39,6 +40,11 @@ public class TodoService {
                 weather,
                 user
         );
+        //생성한 유저를 담당자로 등록
+        Manager manager = new Manager(user, newTodo);
+
+        newTodo.getManagers().add(manager);//CascadeType.PERSIST설정하여 함께 저장됨
+
         Todo savedTodo = todoRepository.save(newTodo);
 
         return new TodoSaveResponse(
@@ -56,9 +62,7 @@ public class TodoService {
             LocalDateTime startAt,
             LocalDateTime endAt) {
         Pageable pageable = PageRequest.of(page - 1, size);
-//        기존
-//        Page<Todo> todos = todoRepository.findAllByOrderByModifiedAtDesc(pageable);
-        //개선
+
         Page<Todo> todos = todoRepository.findByCondition(weather, startAt, endAt, pageable);
 
         return todos.map(todo -> new TodoResponse(
