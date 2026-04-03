@@ -7,10 +7,12 @@ import org.example.expert.domain.common.dto.AuthUser;
 import org.example.expert.domain.user.enums.UserRole;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.Nullable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import org.springframework.security.core.Authentication;
 
 public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
 
@@ -35,12 +37,19 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
             @Nullable WebDataBinderFactory binderFactory
     ) {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+        // SecurityContext에서 인증 정보 꺼내기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // JwtFilter 에서 set 한 userId, email, userRole 값을 가져옴
-        Long userId = (Long) request.getAttribute("userId");
+        Long userId = Long.parseLong(authentication.getName()); // claims.getSubject() 저장했던 것
         String email = (String) request.getAttribute("email");
-        UserRole userRole = UserRole.of((String) request.getAttribute("userRole"));
         String nickname = (String) request.getAttribute("nickname");
+        //시큐리티쪽과 우리쪽 권한 이름이 달라 변환해주는 코드
+        UserRole userRole = UserRole.of(
+                authentication.getAuthorities()
+                        .iterator().next()
+                        .getAuthority()
+                        .replace("ROLE_", "")  // "ROLE_ADMIN" → "ADMIN"
+        );
 
         return new AuthUser(userId, email, userRole, nickname);
     }
