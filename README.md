@@ -14,6 +14,16 @@
 - 수정일 기준 기간 검색 `startAt`, `endAt` (optional)
 - JPQL + `LEFT JOIN FETCH` 로 N+1 방지
 
+**4. 컨트롤러 테스트**
+- `todo_단건_조회_시_todo가_존재하지_않아_예외가_발생한다()` 테스트 수정
+- `InvalidRequestException` 발생 시 `400 BAD_REQUEST` 반환 검증
+- `status`, `code`, `message` 필드 검증 추가
+
+**5. AOP**
+- `AdminAccessLoggingAspect` 의 `@After` → `@Before` 변경
+- 대상 메서드를 `UserController.getUser` → `UserAdminController.changeUserRole` 로 수정
+- `changeUserRole()` 실행 전 userId, 요청 URL, 요청 시간, 메서드명 로깅
+
 ### Level 2
 
 **6. JPA Cascade**
@@ -91,3 +101,21 @@
 - JPA / QueryDSL
 - JWT
 - MySQL
+---
+
+## 트러블슈팅
+> 자세한 내용은 TIL 벨로그에 기록하였습니다. [👉 TIL 링크](https://velog.io/@ftdo12/%ED%94%8C%EB%9F%AC%EC%8A%A4-Spring%EA%B3%BC%EC%A0%9C-%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85)
+
+- Manager 중복 insert 문제
+  - `CascadeType.PERSIST` + 생성자 자동 등록 설정과 서비스 코드 중복 저장으로 인한 문제
+  - 서비스의 중복 저장 코드 제거로 해결
+  
+
+- Spring Security 403 → 401 변환
+  - 토큰 없는 요청 시 기본값 `403` 반환 문제
+  - `authenticationEntryPoint` 설정으로 `401` 반환하도록 해결
+
+
+- @ModelAttribute vs @RequestParam / 날짜 포맷 문제
+  - `@ModelAttribute` + Setter 없는 DTO → 검색 조건 null로 바인딩 문제
+  - `@RequestParam` 으로 변경 + `@DateTimeFormat` 추가로 해결
